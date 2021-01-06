@@ -78,7 +78,13 @@ func main() {
 
 	dbURL, err := c.ExpiredAuthzPurger2.DBConfig.URL()
 	cmd.FailOnError(err, "Couldn't load DB URL")
-	dbMap, err := sa.NewDbMap(dbURL, c.ExpiredAuthzPurger2.DBConfig.MaxDBConns)
+	dbSettings := sa.DbSettings{
+		MaxOpenConns:    c.ExpiredAuthzPurger2.DBConfig.MaxOpenConns,
+		MaxIdleConns:    nil,
+		ConnMaxLifetime: 0,
+		ConnMaxIdleTime: 0,
+	}
+	dbMap, err := sa.NewDbMap(dbURL, dbSettings)
 	cmd.FailOnError(err, "Could not connect to database")
 
 	for {

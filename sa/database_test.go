@@ -11,7 +11,7 @@ import (
 )
 
 func TestInvalidDSN(t *testing.T) {
-	_, err := NewDbMap("invalid", 0)
+	_, err := NewDbMap("invalid", DbSettings{})
 	test.AssertError(t, err, "DB connect string missing the slash separating the database name")
 }
 
@@ -27,7 +27,7 @@ func TestMaxOpenConns(t *testing.T) {
 		maxOpenConns = m
 		oldSetMaxOpenConns(db, maxOpenConns)
 	}
-	_, err := NewDbMap("sa@tcp(boulder-mysql:3306)/boulder_sa_integration", 100)
+	_, err := NewDbMap("sa@tcp(boulder-mysql:3306)/boulder_sa_integration", DbSettings{100, nil, 0, 0})
 	if err != nil {
 		t.Errorf("connecting to DB: %s", err)
 	}
@@ -50,7 +50,7 @@ func TestNewDbMap(t *testing.T) {
 		return nil, errExpected
 	}
 
-	dbMap, err := NewDbMap(mysqlConnectURL, 0)
+	dbMap, err := NewDbMap(mysqlConnectURL, DbSettings{})
 	if err != errExpected {
 		t.Errorf("got incorrect error. Got %v, expected %v", err, errExpected)
 	}
@@ -61,7 +61,7 @@ func TestNewDbMap(t *testing.T) {
 }
 
 func TestStrictness(t *testing.T) {
-	dbMap, err := NewDbMap(vars.DBConnSA, 1)
+	dbMap, err := NewDbMap(vars.DBConnSA, DbSettings{1, nil, 0, 0})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +77,7 @@ func TestStrictness(t *testing.T) {
 }
 
 func TestTimeouts(t *testing.T) {
-	dbMap, err := NewDbMap(vars.DBConnSA+"?readTimeout=1s", 1)
+	dbMap, err := NewDbMap(vars.DBConnSA+"?readTimeout=1s", DbSettings{1, nil, 0, 0})
 	if err != nil {
 		t.Fatal("Error setting up DB:", err)
 	}
@@ -101,7 +101,7 @@ func TestTimeouts(t *testing.T) {
 // databases that have auto_increment columns use BIGINT for the data type. Our
 // data is too big for INT.
 func TestAutoIncrementSchema(t *testing.T) {
-	dbMap, err := NewDbMap(vars.DBInfoSchemaRoot, 1)
+	dbMap, err := NewDbMap(vars.DBInfoSchemaRoot, DbSettings{1, nil, 0, 0})
 	test.AssertNotError(t, err, "unexpected err making NewDbMap")
 
 	var count int64

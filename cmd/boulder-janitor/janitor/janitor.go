@@ -67,7 +67,13 @@ func New(clk clock.Clock, config JanitorConfig) (*Janitor, error) {
 	if err != nil {
 		return nil, err
 	}
-	dbMap, err := sa.NewDbMap(dbURL, config.DBConfig.MaxDBConns)
+	dbSettings := sa.DbSettings{
+		MaxOpenConns:    config.DBConfig.MaxOpenConns,
+		MaxIdleConns:    nil,
+		ConnMaxLifetime: 0,
+		ConnMaxIdleTime: 0,
+	}
+	dbMap, err := sa.NewDbMap(dbURL, dbSettings)
 	if err != nil {
 		return nil, err
 	}
